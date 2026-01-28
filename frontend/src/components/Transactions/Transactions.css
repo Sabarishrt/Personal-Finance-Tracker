@@ -1,0 +1,109 @@
+.transactions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.transactions-header h1 {
+  color: white;
+  font-size: 2.5rem;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.transactions-table {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.transaction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(21, 29, 46, 0.9), rgba(12, 18, 30, 0.95));
+  border-radius: 14px;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.transaction-row:hover {
+  background: linear-gradient(135deg, rgba(30, 42, 80, 0.95), rgba(16, 24, 42, 0.98));
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.transaction-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.transaction-type-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.transaction-type-badge.income {
+  background: #d4edda;
+  color: #155724;
+}
+
+.transaction-type-badge.expense {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.transaction-details {
+  flex: 1;
+}
+
+.transaction-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.no-transactions {
+  text-align: center;
+  padding: 3rem;
+  color: #c8d4e7;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .transactions-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .transactions-header h1 {
+    font-size: 2rem;
+  }
+
+  .transaction-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .transaction-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}

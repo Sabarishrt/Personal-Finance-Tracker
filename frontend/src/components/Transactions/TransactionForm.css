@@ -1,0 +1,13 @@
+.transaction-form-card {
+  margin-bottom: 2rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.form-actions .btn {
+  flex: 1;
+}
