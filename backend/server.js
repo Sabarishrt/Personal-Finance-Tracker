@@ -18,6 +18,7 @@ app.use('/api/transactions', require('./routes/transactions'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/budget', require('./routes/budget'));
+app.use('/api/events', require('./routes/events'));
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import TransactionForm from '../Transactions/TransactionForm';
 import './Dashboard.css';
 
@@ -66,6 +68,114 @@ const Dashboard = () => {
     setShowForm(true);
   };
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    
+    // Title
+    const pageTitle = filterType === 'monthly' 
+      ? `Expenses Report - ${format(selectedDate, 'MMMM yyyy')}`
+      : `Expenses Report - ${format(selectedDate, 'yyyy')}`;
+    
+    doc.setFontSize(18);
+    doc.text(pageTitle, 20, 20);
+    
+    // Summary section
+    doc.setFontSize(12);
+    doc.text('Summary', 20, 35);
+    
+    const summaryData = [
+      ['Total Income', `$${stats.totalIncome.toFixed(2)}`],
+      ['Total Expense', `$${stats.totalExpense.toFixed(2)}`],
+      ['Balance', `$${stats.balance.toFixed(2)}`]
+    ];
+    
+    doc.autoTable({
+      startY: 40,
+      head: [['Description', 'Amount']],
+      body: summaryData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [124, 93, 255],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold'
+      },
+      bodyStyles: {
+        textColor: [0, 0, 0]
+      },
+      margin: { left: 20, right: 20 }
+    });
+    
+    // Expenses by category
+    if (Object.keys(stats.expensesByCategory).length > 0) {
+      const categoryData = Object.entries(stats.expensesByCategory)
+        .sort((a, b) => b[1] - a[1])
+        .map(([category, amount]) => [category, `$${amount.toFixed(2)}`]);
+      
+      doc.setFontSize(12);
+      doc.text('Expenses by Category', 20, doc.lastAutoTable.finalY + 15);
+      
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 20,
+        head: [['Category', 'Amount']],
+        body: categoryData,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [220, 53, 69],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold'
+        },
+        bodyStyles: {
+          textColor: [0, 0, 0]
+        },
+        margin: { left: 20, right: 20 }
+      });
+    }
+    
+    // Recent transactions
+    if (stats.recentTransactions && stats.recentTransactions.length > 0) {
+      const expenseTransactions = stats.recentTransactions
+        .filter(t => t.type === 'expense')
+        .map(t => [
+          t.category,
+          t.description || '-',
+          format(new Date(t.date), 'MMM dd, yyyy'),
+          `$${t.amount.toFixed(2)}`
+        ]);
+      
+      if (expenseTransactions.length > 0) {
+        doc.setFontSize(12);
+        doc.text('Recent Expense Transactions', 20, doc.lastAutoTable.finalY + 15);
+        
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 20,
+          head: [['Category', 'Description', 'Date', 'Amount']],
+          body: expenseTransactions,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [52, 232, 158],
+            textColor: [0, 0, 0],
+            fontStyle: 'bold'
+          },
+          bodyStyles: {
+            textColor: [0, 0, 0]
+          },
+          margin: { left: 20, right: 20 }
+        });
+      }
+    }
+    
+    // Footer
+    doc.setFontSize(10);
+    doc.text(
+      `Generated on ${format(new Date(), 'MMM dd, yyyy HH:mm')}`,
+      20,
+      doc.internal.pageSize.height - 10
+    );
+    
+    // Save the PDF
+    doc.save(`expenses-${filterType === 'monthly' ? format(selectedDate, 'MMM-yyyy') : format(selectedDate, 'yyyy')}.pdf`);
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -117,6 +227,13 @@ const Dashboard = () => {
             title={stats.balance < 0 ? 'Cannot add expenses: Income is insufficient' : ''}
           >
             + Add Expense
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="btn btn-primary"
+            title="Export expenses to PDF"
+          >
+            📥 Export to PDF
           </button>
           {stats.balance < 0 && (
             <span className="expense-warning">Cannot add expenses - insufficient income</span>
